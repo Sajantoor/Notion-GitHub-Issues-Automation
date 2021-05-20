@@ -12,6 +12,7 @@
     "start": "tsc index.ts && node index.js"
   },
   "dependencies": {
+    "@notionhq/client": "^0.1.3",
     "dotenv": "^9.0.2",
     "node-fetch": "^2.6.1"
   }
