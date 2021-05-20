@@ -1,0 +1,29 @@
+name: "GitHub Notion Issues Automation"
+
+permissions:
+    issues: read
+
+# run code on issue or issue comment
+on: 
+  [issues, issue_comment] # maybe label?? depends on how I choose to organize
+
+jobs:
+  deploy: # deploy maybe incorrect we'll see ig
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Build
+      run: |
+        npm install
+    - name: Start
+      run: |
+        npm start 
+
+# https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
