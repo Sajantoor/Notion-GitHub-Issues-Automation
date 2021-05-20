@@ -8,10 +8,11 @@ dotenv.config();
 
 const USERNAME = process.env.user;
 const REPO = process.env.repo;
+const DATABASE_ID = process.env.NOTION_DATABASE;
+const PAGE_ID = process.env.NOTION_PAGE_ID;
 
 const GITHUB_API = `https://api.github.com/repos/${USERNAME}/${REPO}/issues`
 const NOTION_API = new Client({ auth: process.env.NOTION_API_KEY });
-const DATABASE_ID = process.env.NOTION_DATABASE;
 
 /**
  * Fetch from the GitHub API to get new issues related to our working repo 
@@ -22,7 +23,6 @@ async function fetchGitHub() {
     let data = await response.json();
     return data;
 }
-
 
 /**
  * Fetch from the Notion API and get information about our database
@@ -39,7 +39,10 @@ async function fetchNotion() {
 /**
  * Post to the Notion API 
  */
-async function postNotion() {
+async function postNotion(title_content: string | undefined, state: string | undefined, url : string | undefined, date : string) {
+    let dateObj = new Date(date);
+    let dateString = dateObj.toISOString();
+
     const response = await NOTION_API.pages.create({
         parent: {
             database_id: DATABASE_ID,
@@ -51,15 +54,68 @@ async function postNotion() {
                 {
                   type: 'text',
                   text: {
-                    content: 'Hello, World!',
+                    content: title_content,
                   },
                 },
               ],
             },
+
+            'State': {
+                select: {
+                    name: state,
+                }
+              },
+
+            'Last Updated': {
+                date: dateString, 
+            }, 
+
+            'URL': {
+                url: url,
+            },
+
+            
           },
     });
 
-    console.log(response);
+    return response;
 }
 
-// postNotion();
+async function main() {
+    let GH_RESULTS = await fetchGitHub();
+    
+    for (let index = 0; index < 1; index++) {
+        const element = GH_RESULTS[index];
+        postNotion(element.title, element.state, element.html_url, element.updated_at);
+    }
+
+    return;
+}
+
+main();
+
+/**
+ * Creates a new page, can't do anything else because API sucks :(
+ */
+// async function initDatabaseNotion() {
+//     const response = await NOTION_API.pages.create({
+//         parent: {            
+//            page_id: PAGE_ID,
+//         },
+//         properties: {
+//             title: [
+//                 {
+//                     type: 'text',
+//                     text: {
+//                         content: 'Hello, World!',
+//                     },
+//                 },
+//             ]
+//         },
+//     });
+
+//     console.log(response);
+// }
+
+// initDatabaseNotion();
+ 
