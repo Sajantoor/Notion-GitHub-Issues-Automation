@@ -1,7 +1,7 @@
 import dotenv = require('dotenv');
 import fetch from 'node-fetch';
-// import Client from '@notionhq/client';
-const { Client } = require('@notionhq/client');
+const { Client } = require('@notionhq/client'); // TODO: change this to an import if possible
+const fs = require('fs'); // DEV: for development
 
 // get info from .env file
 dotenv.config();
@@ -16,12 +16,22 @@ const NOTION_API = new Client({ auth: process.env.NOTION_API_KEY });
 
 /**
  * Fetch from the GitHub API to get new issues related to our working repo 
- * @return Response a promise from the  GitHub API
+ * @return Response a promise from the GitHub API
  */
 async function fetchGitHub() {
     let response = await fetch(GITHUB_API);
     let data = await response.json();
     return data;
+}
+
+
+/**
+ * For development to prevent unnecessary calls to the GitHub API. (It has limits)
+ * @returns Result from GitHub API JSOn
+ */
+function fetchGitHubDEV() {
+  let rawdata = fs.readFileSync('dev/github.json');
+  return JSON.parse(rawdata);
 }
 
 /**
@@ -37,12 +47,36 @@ async function fetchNotion() {
 }
 
 /**
- * Post to the Notion API 
+ * Query the database, provides matching results
+ * @return response from Notion API
  */
-async function postNotion(title_content: string | undefined, state: string | undefined, url : string | undefined, date : string) {
-    let dateObj = new Date(date);
-    let dateString = dateObj.toISOString();
+async function queryNotion() {
+  const response = await NOTION_API.databases.query({
+    database_id: DATABASE_ID, 
+    // filter: {
+      
+    // },
+    sorts: [
+      {
+        property: 'Number',
+        direction: 'descending',
+      }
+    ]
+  });
 
+  return response;
+}
+
+/**
+ * 
+ * @param title_content 
+ * @param state 
+ * @param url 
+ * @param number 
+ * @param body 
+ * @returns response from NOTION API
+ */
+async function postNotion(title_content: string, state: string, url : string, number : number, body : string) {
     const response = await NOTION_API.pages.create({
         parent: {
             database_id: DATABASE_ID,
@@ -51,71 +85,140 @@ async function postNotion(title_content: string | undefined, state: string | und
             'Name': {
               type: 'title',
               title: [
-                {
-                  type: 'text',
-                  text: {
-                    content: title_content,
-                  },
-                },
+                createTextObject(title_content),
               ],
             },
 
             'State': {
                 select: {
-                    name: state,
+                    name: capitalize(state),
                 }
               },
 
-            'Last Updated': {
-                date: dateString, 
-            }, 
+            'Number': {
+                number: number,
+              },
 
             'URL': {
                 url: url,
             },
 
-            
-          },
+            // TODO: dates require a certain format but it's not in the Notion API documentation :(
+            // 'Last Updated': {
+            //     date: dateString, 
+            // },   
+        },
+
+        children: [
+          {
+            object: 'block', 
+            type: 'paragraph',
+            paragraph: {
+              text: [
+                createTextObject(body), // TODO: Fix markdown mess, seems unsupported by API currently
+              ]
+          }
+        },
+
+        // TODO: Get user info and insert it, after markdown
+        // {
+        //   object: 'block',
+        //   type: 'heading_1',
+        //   heading_1: {
+        //     text: [
+        //       createTextObject('User Info:'),
+        //     ]
+        //   }
+        // },
+      ]
     });
 
     return response;
 }
 
-async function main() {
-    let GH_RESULTS = await fetchGitHub();
-    
-    for (let index = 0; index < 1; index++) {
-        const element = GH_RESULTS[index];
-        postNotion(element.title, element.state, element.html_url, element.updated_at);
-    }
-
-    return;
-}
-
-main();
-
 /**
  * Creates a new page, can't do anything else because API sucks :(
  */
-// async function initDatabaseNotion() {
-//     const response = await NOTION_API.pages.create({
-//         parent: {            
-//            page_id: PAGE_ID,
-//         },
-//         properties: {
-//             title: [
-//                 {
-//                     type: 'text',
-//                     text: {
-//                         content: 'Hello, World!',
-//                     },
-//                 },
-//             ]
-//         },
-//     });
+async function initDatabaseNotion() {
+    const response = await NOTION_API.pages.create({
+        parent: {            
+           page_id: PAGE_ID,
+        },
+        properties: {
+            title: [
+                  createTextObject('Hello, world!'),
+            ]
+        },
+    });
 
-//     console.log(response);
-// }
+    return response;
+}
 
-// initDatabaseNotion();
- 
+/**
+ * 
+ * @param str String to capitalize
+ * @returns String with first letter capitalized
+ */
+function capitalize(str : string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ * Helper function to remove some syntax and make code easier to read.
+ * @param content String we want to pass to the text object
+ * @returns Text object
+ */
+function createTextObject(content: string): object {
+  return {
+    type: 'text',
+    text: {
+      content: content,
+    },
+  }
+} 
+
+/**
+ * Data is already sorted (in decending order) so binary search for the number we want to find.
+ * @param notionData Data from the Notion database query
+ * @param num Number we want to find 
+ * @param start index to start from 
+ * @param n length of the array
+ * @returns if the database contains the number
+ */
+function notionContains(notionData : any, num : number, start : number, n : number): boolean {
+  let half = Math.round((start + n) / 2);
+
+  if (start <= n) {
+    let halfVal = notionData?.results[half]?.properties?.Number?.number;
+
+    if (halfVal === num) {
+      return true; 
+    } else if (halfVal < num) { // if it's greater than look at first half 
+      return notionContains(notionData, num, 0, half - 1); 
+    } else if (halfVal > num) { // if it's less than look at second half
+      return notionContains(notionData, num, half + 1, n);
+    }
+  }
+
+  return false;
+}
+
+async function main() {
+  const GH_RESULTS = await fetchGitHubDEV(); 
+  const NOTION_RESULTS = await queryNotion(); // check if it's in the database already before adding it
+    
+  for (let index = 0; index < GH_RESULTS.length; index++) {
+      const element = GH_RESULTS[index];
+      const number = element.number;
+      const notionMax = NOTION_RESULTS?.results[0]?.properties?.Number?.number; // max number 
+
+      // add it if it's greater than the max number, won't be in the database or if it the database doesn't contain the issue
+      if (number > notionMax || !notionContains(NOTION_RESULTS, number, 0, NOTION_RESULTS?.results.length)) {
+          postNotion(element.title, element.state, element.html_url, element.number, element.body);
+      } 
+  }
+
+  return;
+}
+
+main();
