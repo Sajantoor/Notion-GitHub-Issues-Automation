@@ -1,6 +1,6 @@
 import dotenv = require('dotenv');
 import fetch from 'node-fetch';
-const { Client } = require('@notionhq/client'); // TODO: change this to an import if possible
+const { Client } = require('@notionhq/client');
 const fs = require('fs'); // DEV: for development
 
 // get info from .env file
@@ -23,7 +23,6 @@ async function fetchGitHub() {
     let data = await response.json();
     return data;
 }
-
 
 /**
  * For development to prevent unnecessary calls to the GitHub API. (It has limits)
@@ -169,6 +168,11 @@ function capitalize(str : string): string {
  * @returns Text object
  */
 function createTextObject(content: string): object {
+  // fixed NULL string error
+  if (content == null) {
+    content = "";
+  }
+  
   return {
     type: 'text',
     text: {
@@ -204,7 +208,7 @@ function notionContains(notionData : any, num : number, start : number, n : numb
 }
 
 async function main() {
-  const GH_RESULTS = await fetchGitHubDEV(); 
+  const GH_RESULTS = await fetchGitHub(); 
   const NOTION_RESULTS = await queryNotion(); // check if it's in the database already before adding it
     
   for (let index = 0; index < GH_RESULTS.length; index++) {
@@ -213,8 +217,8 @@ async function main() {
       const notionMax = NOTION_RESULTS?.results[0]?.properties?.Number?.number; // max number 
 
       // add it if it's greater than the max number, won't be in the database or if it the database doesn't contain the issue
-      if (number > notionMax || !notionContains(NOTION_RESULTS, number, 0, NOTION_RESULTS?.results.length)) {
-          postNotion(element.title, element.state, element.html_url, element.number, element.body);
+      if (number > notionMax || !notionContains(NOTION_RESULTS, number, 0, NOTION_RESULTS?.results?.length)) {
+          postNotion(element?.title, element?.state, element?.html_url, element?.number, element?.body);
       } 
   }
 
