@@ -1,5 +1,7 @@
 name: "GitHub Notion Issues Automation"
 description: "Gets issues from GitHub and puts them in your Notion database automatically using GitHub Actions."
+icon: "activity"
+color: "gray-dark"
 
 permissions:
     issues: read
