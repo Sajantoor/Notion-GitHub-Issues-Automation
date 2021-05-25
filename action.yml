@@ -11,7 +11,7 @@ on:
   [issues, issue_comment] # TODO: Label
 
 jobs:
-  deploy: # deploy maybe incorrect we'll see ig
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -22,6 +22,11 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+      env: 
+        repo: ${{ GITHUB_REPOSITORY }} 
+        NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+        NOTION_DATABASE: ${{ secrets.NOTION_DATABASE }}
+        NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
     - name: Build
       run: |
         npm install

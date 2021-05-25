@@ -11,7 +11,7 @@ const REPO = process.env.repo;
 const DATABASE_ID = process.env.NOTION_DATABASE;
 const PAGE_ID = process.env.NOTION_PAGE_ID;
 
-const GITHUB_API = `https://api.github.com/repos/${USERNAME}/${REPO}/issues`
+const GITHUB_API = `https://api.github.com/repos/${REPO}/issues`
 const NOTION_API = new Client({ auth: process.env.NOTION_API_KEY });
 
 /**
