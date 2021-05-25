@@ -1,7 +1,5 @@
 name: "GitHub Notion Issues Automation"
-description: "Gets issues from GitHub and puts them in your Notion database automatically using GitHub Actions."
-icon: "activity"
-color: "gray-dark"
+description: "Gets issues from GitHub and puts them in your Notion database."
 
 permissions:
     issues: read
@@ -22,16 +20,16 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-      env: 
-        repo: ${{ GITHUB_REPOSITORY }} 
-        NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
-        NOTION_DATABASE: ${{ secrets.NOTION_DATABASE }}
-        NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
     - name: Build
       run: |
         npm install
     - name: Start
       run: |
-        npm start 
+        npm start
+      env: 
+        repo: ${{ github.repository }} 
+        NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+        NOTION_DATABASE: ${{ secrets.NOTION_DATABASE }}
+        NOTION_PAGE_ID: ${{ secrets.NOTION_PAGE_ID }}
 
 # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions

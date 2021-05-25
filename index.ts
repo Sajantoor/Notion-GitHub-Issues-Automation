@@ -6,7 +6,6 @@ const fs = require('fs'); // DEV: for development
 // get info from .env file
 dotenv.config();
 
-const USERNAME = process.env.user;
 const REPO = process.env.repo;
 const DATABASE_ID = process.env.NOTION_DATABASE;
 const PAGE_ID = process.env.NOTION_PAGE_ID;
