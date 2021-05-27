@@ -4,7 +4,4 @@ description: Gets issues from GitHub and puts them in your Notion database.
 branding:
   color: gray-dark
   icon: check-circle
-
-runs:
-  using: node12
-  main: ./dist/index.js
+  
