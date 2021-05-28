@@ -1,4 +1,4 @@
-import dotenv = require('dotenv');
+const dotenv = require('dotenv');
 import fetch from 'node-fetch';
 const { Client } = require('@notionhq/client');
 const fs = require('fs'); // DEV: for development
