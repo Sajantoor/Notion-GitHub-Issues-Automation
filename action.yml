@@ -21,4 +21,4 @@ inputs:
 
 runs:
   using: node12
-  main: build/index.ts
+  main: build/index.js
