@@ -12,6 +12,8 @@
     "start": "tsc index.ts && node index.js"
   },
   "dependencies": {
+    "@actions/core": "^1.4.0",
+    "@actions/github": "^5.0.0",
     "@notionhq/client": "^0.1.3",
     "dotenv": "^9.0.2",
     "node-fetch": "^2.6.1"

@@ -2,16 +2,18 @@ const dotenv = require('dotenv');
 import fetch from 'node-fetch';
 const { Client } = require('@notionhq/client');
 const fs = require('fs'); // DEV: for development
+const core = require('@actions/core'); // for GitHub actions, accessing variables.
+const github = require('@actions/github'); // also for GitHub actions
 
 // get info from .env file
 dotenv.config();
 
-const REPO = process.env.repo;
-const DATABASE_ID = process.env.NOTION_DATABASE;
-const PAGE_ID = process.env.NOTION_PAGE_ID;
+const REPO = core.getInput('repo');
+const DATABASE_ID = core.getInput('NOTION_DATABASE');
+const PAGE_ID = core.getInput('NOTION_PAGE_ID');
 
 const GITHUB_API = `https://api.github.com/repos/${REPO}/issues`
-const NOTION_API = new Client({ auth: process.env.NOTION_API_KEY });
+const NOTION_API = new Client({ auth: core.getInput('NOTION_API_KEY') });
 
 /**
  * Fetch from the GitHub API to get new issues related to our working repo 
