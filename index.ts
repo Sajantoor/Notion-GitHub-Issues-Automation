@@ -1,5 +1,5 @@
-const dotenv = require('dotenv');
-import fetch from 'node-fetch';
+const dotenv = require('dotenv'); // DEV: for development 
+import fetch from 'node-fetch'; // Fetch API in Node
 const { Client } = require('@notionhq/client');
 const fs = require('fs'); // DEV: for development
 const core = require('@actions/core'); // for GitHub actions, accessing variables.
@@ -9,16 +9,28 @@ const github = require('@actions/github'); // also for GitHub actions
 dotenv.config();
 
 const REPO = core.getInput('repo');
-console.log(REPO);
 const DATABASE_ID = core.getInput('NOTION_DATABASE');
-console.log(DATABASE_ID);
-
 const PAGE_ID = core.getInput('NOTION_PAGE_ID');
-console.log(DATABASE_ID);
-
 
 const GITHUB_API = `https://api.github.com/repos/${REPO}/issues`
 const NOTION_API = new Client({ auth: core.getInput('NOTION_API_KEY') });
+
+/**
+ * Replace's GitHub core and looks at a `.env` file when in development.
+ * @param name Name of environment variable
+ * @returns Value of environment variable
+ */
+function getEnv(name: string): string | undefined { 
+  // GitHub core source code.
+  const ghActions = process.env[`INPUT_${name.replace(/ /g, '_').toUpperCase()}`];
+
+  // if it's an empty string or undefined use `.env` file instead. 
+  if (ghActions != '' && ghActions != undefined) {
+    return ghActions;
+  } 
+
+  return process.env[name];
+}
 
 /**
  * Fetch from the GitHub API to get new issues related to our working repo 
