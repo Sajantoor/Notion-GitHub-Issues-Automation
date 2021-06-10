@@ -8,6 +8,8 @@
 ## About 
 Makes project management and organization with Notion easier. This project can be added as as GitHub Action and automatically takes issues from your GitHub repository to your Notion database when an issue is created. This project uses the newly public Notion API to read and update the database and the GitHub API to fetch issues.
 
+![Notion Database with Github Issues](../readme-assets/assets/About.png "Notion Database with Github Issues")
+
 Future Features:
  * Authentication for GitHub private repositories. 
  * Better markdown support for issues (Unsupported by API)
@@ -36,6 +38,8 @@ Future Features:
     *  Select type called "State" with 2 options called "Open" and "Closed"
     *  URL type called "URL" 
     *  Number type called "Number"
+![Example of the Database](../readme-assets/assets/Database.png "Example of the Database")
+
 * Click on the "Share" button and invite your integration, this will give read - write permission to the integration. 
 ![Gif of how to create an Integration](https://files.readme.io/0a267dd-share-database-with-integration.gif "Gif of how to create an Integration")
 
