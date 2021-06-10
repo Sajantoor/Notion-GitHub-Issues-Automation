@@ -14595,11 +14595,12 @@ const core = __nccwpck_require__(8021); // for GitHub actions, accessing variabl
 const github = __nccwpck_require__(4366); // also for GitHub actions
 // get info from .env file
 dotenv.config();
-const REPO = core.getInput('repo');
-const DATABASE_ID = core.getInput('NOTION_DATABASE');
-const PAGE_ID = core.getInput('NOTION_PAGE_ID');
+const REPO = getEnv('repo');
+const DATABASE_ID = getEnv('NOTION_DATABASE');
+const PAGE_ID = getEnv('NOTION_PAGE_ID');
 const GITHUB_API = `https://api.github.com/repos/${REPO}/issues`;
-const NOTION_API = new Client({ auth: core.getInput('NOTION_API_KEY') });
+const NOTION_API_KEY = getEnv('NOTION_API_KEY');
+const NOTION_API = new Client({ auth: NOTION_API_KEY });
 /**
  * Replace's GitHub core and looks at a `.env` file when in development.
  * @param name Name of environment variable
