@@ -9,8 +9,13 @@ const github = require('@actions/github'); // also for GitHub actions
 dotenv.config();
 
 const REPO = core.getInput('repo');
+console.log(REPO);
 const DATABASE_ID = core.getInput('NOTION_DATABASE');
+console.log(DATABASE_ID);
+
 const PAGE_ID = core.getInput('NOTION_PAGE_ID');
+console.log(DATABASE_ID);
+
 
 const GITHUB_API = `https://api.github.com/repos/${REPO}/issues`
 const NOTION_API = new Client({ auth: core.getInput('NOTION_API_KEY') });

@@ -52,8 +52,11 @@ var github = __nccwpck_require__(4366); // also for GitHub actions
 // get info from .env file
 dotenv.config();
 var REPO = core.getInput('repo');
+console.log(REPO);
 var DATABASE_ID = core.getInput('NOTION_DATABASE');
+console.log(DATABASE_ID);
 var PAGE_ID = core.getInput('NOTION_PAGE_ID');
+console.log(DATABASE_ID);
 var GITHUB_API = "https://api.github.com/repos/" + REPO + "/issues";
 var NOTION_API = new Client({ auth: core.getInput('NOTION_API_KEY') });
 /**
