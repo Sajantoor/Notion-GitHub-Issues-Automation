@@ -9,8 +9,8 @@
   },
   "scripts": {
     "dev": "ts-node-dev --respawn --clear --transpile-only index.ts",
-    "build": "tsc index.ts",
-    "build-dist": "ncc build index.ts -o build",
+    "build": "tsc index.ts --outDir build",
+    "build-dist": "tsc index.ts && ncc build index.js -o build",
     "start": "tsc index.ts && node index.js"
   },
   "dependencies": {
