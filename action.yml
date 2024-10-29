@@ -20,5 +20,5 @@ inputs:
     required: false
 
 runs:
-  using: node12
+  using: node22
   main: build/index.js
